@@ -1,0 +1,106 @@
+/* CSS/index.css */
+
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* Navbar styles */
+.navbar {
+  background-color: #343a40;
+  padding: 1rem;
+}
+
+.navbar-brand {
+  color: #ffffff;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  color: #cccccc;
+}
+
+/* Container styles */
+.container {
+  margin-top: 20px;
+}
+
+/* Header and button styles */
+.bd-highlight h2 {
+  margin: 0;
+}
+
+.bd-highlight .btn {
+  background-color: #6c757d;
+  color: #ffffff;
+  border: none;
+}
+
+.bd-highlight .btn:hover {
+  background-color: #5a6268;
+}
+
+/* Table styles */
+.table-responsive {
+  margin-top: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody + tbody {
+  border-top: 2px solid #dee2e6;
+}
+
+.table .table-responsive {
+  border: 0;
+}
+
+.table th {
+  background-color: #f1f1f1;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Custom button in the table */
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.form-control{
+text-align: center;
+}
+
+
