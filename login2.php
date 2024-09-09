@@ -21,7 +21,7 @@ if (isset($_POST['uname']) && isset($_POST['password_hash'])) {
         header("Location: login.php?error=Password is required");
 	    exit();
 	}else{
-		$sql = "SELECT * FROM MyGuests WHERE password='$password_hash'";
+		$sql = "SELECT * FROM MyGuests WHERE `password`='$password_hash'";
 
 		$result = $conn->query($sql);
     if(!$result){

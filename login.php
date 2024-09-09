@@ -16,7 +16,9 @@
      	<label>User Name</label>
      	<input type="password" name="password" placeholder="Voorbeeld123!"><br>
 
-     	<button type="submit">Login</button>
+		<a href="logged_in.php">
+     	<button>Login</button>
+		</a>
 		<a href="sign-up.php">Don't have an account? Click here to register.</a>
      </form>
 </body>
