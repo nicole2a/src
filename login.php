@@ -1,30 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>LOGIN</title>
     <link rel="stylesheet" type="text/css" href="login.css">
-    <style>
-        .error { color: red; }
-        /* Add additional styling as needed */
-    </style>
 </head>
 <body>
     <form action="login2.php" method="post">
-        <h2>Login</h2>
+        <h2>LOGIN</h2>
         <?php if (isset($_GET['error'])) { ?>
-            <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
+            <p class="error"><?php echo $_GET['error']; ?></p>
         <?php } ?>
-        <div>
-            <label for="email">E-mail</label>
-            <input type="email" id="email" name="email" placeholder="gebruiker@gmail.com" required aria-required="true">
-        </div>
+        <label>E-mail</label>
+        <input type="text" name="email" placeholder="gebruiker@gmail.com" required><br>
 
-        <div>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Voorbeeld123!" required aria-required="true">
-        </div>
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Voorbeeld123!" required><br>
 
         <button type="submit">Login</button>
     </form>

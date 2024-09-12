@@ -1,6 +1,8 @@
 /* CSS/index.css */
 
 /* General styles */
+
+
 body {
   font-family: Arial, sans-serif;
   background-color: #f8f9fa;
@@ -12,6 +14,12 @@ body {
 .navbar {
   background-color: #343a40;
   padding: 1rem;
+
+}
+.navbar-collapse {
+  flex-basis: 100%;
+  flex-grow: 0;
+  align-items: center;
 }
 
 .navbar-brand {
