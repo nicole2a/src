@@ -1,25 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>LOGIN</title>
-	<link rel="stylesheet" type="text/css" href="login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
+    <style>
+        .error { color: red; }
+        /* Add additional styling as needed */
+    </style>
 </head>
 <body>
-     <form action="login2.php" method="post">
-     	<h2>LOGIN</h2>
-     	<?php if (isset($_GET['error'])) { ?>
-     		<p class="error"><?php echo $_GET['error']; ?></p>
-     	<?php } ?>
-     	<label>E-mail</label>
-     	<input type="text" name="uname" placeholder="gebruiker@gmail.com"><br>
+    <form action="login2.php" method="post">
+        <h2>Login</h2>
+        <?php if (isset($_GET['error'])) { ?>
+            <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
+        <?php } ?>
+        <div>
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" placeholder="gebruiker@gmail.com" required aria-required="true">
+        </div>
 
-     	<label>User Name</label>
-     	<input type="password" name="password" placeholder="Voorbeeld123!"><br>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Voorbeeld123!" required aria-required="true">
+        </div>
 
-		<a href="logged_in.php">
-     	<button>Login</button>
-		</a>
-		<a href="sign-up.php">Don't have an account? Click here to register.</a>
-     </form>
+        <button type="submit">Login</button>
+    </form>
+    <a href="sign-up.php">Don't have an account? Click here to register.</a>
 </body>
 </html>

@@ -1,39 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Signup</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-    <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js" defer></script>
-    <script src="/js/validation.js" defer></script>
 </head>
 <body>
-    
-    <h1>Signup</h1>
+    <h1>Sign Up</h1>
     
     <form action="process-signup.php" method="post" id="signup" novalidate>
         <div>
             <label for="name">Name</label>
-            <input type="text" id="name" name="name">
+            <input type="text" id="name" name="name" required>
         </div>
         
         <div>
-            <label for="email">email</label>
-            <input type="email" id="email" name="email">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
         </div>
         
         <div>
             <label for="password">Password</label>
-            <input type="password" id="password" name="password">
+            <input type="password" id="password" name="password" required>
         </div>
         
         <div>
-            <label for="password_confirmation">Repeat password</label>
-            <input type="password" id="password_confirmation" name="password_confirmation">
+            <label for="password_confirmation">Repeat Password</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required>
         </div>
         
-        <button>Sign up</button>
+        <button type="submit">Sign Up</button>
     </form>
-    
+
+    <?php if (isset($_GET['error'])) { ?>
+        <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
+    <?php } ?>
 </body>
 </html>

@@ -1,52 +1,64 @@
-<?php 
-session_start(); 
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
 include "connectie.php";
 
-if (isset($_POST['uname']) && isset($_POST['password_hash'])) {
-
-	function validate($data){
-       $data = trim($data);
-	   $data = stripslashes($data);
-	   $data = htmlspecialchars($data);
-	   return $data;
-	}
-
-	$uname = validate($_POST['uname']);
-	$pass = validate($_POST['password_hash']);
-
-	if (empty($uname)) {
-		header("Location: login.php?error=E-mail is required");
-	    exit();
-	}else if(empty($pass)){
-        header("Location: login.php?error=Password is required");
-	    exit();
-	}else{
-		$sql = "SELECT * FROM MyGuests WHERE `password`='$password_hash'";
-
-		$result = $conn->query($sql);
-    if(!$result){
-      die ("invalid query!");
-    }
-
-		if (mysqli_num_rows($result) === 1) {
-			$row = mysqli_fetch_assoc($result);
-            if ($row['email'] === $uname && $row['password_hash'] === $password_hash) {
-            	$_SESSION['email'] = $row['email'];
-            	$_SESSION['name'] = $row['name'];
-            	$_SESSION['id'] = $row['id'];
-            	header("Location: login2.php");
-		        exit();
-            }else{
-				header("Location: login.php?error=Incorect E-mail or password");
-		        exit();
-			}
-		}else{
-			header("Location: login.php?error=Incorect E-mail or password");
-	        exit();
-		}
-	}
-	
-}else{
-	header("Location: login.php");
-	exit();
+// Function to validate and sanitize input
+function validate($data){
+    return htmlspecialchars(stripslashes(trim($data)));
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate email and password input
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        
+        $email = filter_var(validate($_POST['email']), FILTER_VALIDATE_EMAIL);
+        $password = validate($_POST['password']);
+
+        if (!$email) {
+            header("Location: login.php?error=Invalid email format");
+            exit();
+        } elseif (empty($password)) {
+            header("Location: login.php?error=Password is required");
+            exit();
+        } else {
+            // Check if the user exists in the database
+            $sql = "SELECT * FROM MyGuests WHERE email = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows === 1) {
+                $user = $result->fetch_assoc(); // Fetch the user's data
+
+                // Verify the provided password with the stored hash
+                if (password_verify($password, $user['password_hash'])) {
+                    // Password is correct, set session variables
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['name'] = $user['name'];
+                    $_SESSION['id'] = $user['id'];
+
+                    // Redirect to the logged-in page
+                    header("Location: index-logged-in.php");
+                    exit();
+                } else {
+                    header("Location: login.php?error=Invalid password");
+                    exit();
+                }
+            } else {
+                header("Location: login.php?error=User not found");
+                exit();
+            }
+        }
+    } else {
+        header("Location: login.php?error=Please fill in both fields");
+        exit();
+    }
+} else {
+    header("Location: login.php");
+    exit();
+}
+?>
