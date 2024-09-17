@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                 $stmt_insert->close();
-                header("Location: login.php");
+                header("Location: signup-succes.html");
                 exit();
             } else {
                 die("Database error: " . $stmt_insert->error); // Display the error if execute fails

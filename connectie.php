@@ -2,7 +2,7 @@
 $servername = "mysql";
 $username = "root";
 $password = "password";
-$db = "tools_for_ever";
+$db = "Tools_For_Ever";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $db);
