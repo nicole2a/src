@@ -4,6 +4,7 @@ include 'connectie.php'; // Ensure this file is in the correct path
 // SQL query to get product details, stock, and locations
 $sql = "
 SELECT 
+    p.id AS product_id, -- Add the product ID
     p.product AS product_name, 
     p.type AS product_type,
     v.voorraad AS voorraad,
@@ -29,6 +30,7 @@ if ($result->num_rows > 0) {
                 <th>Voorraad</th>
                 <th>Locatie</th>
                 <th>Aantal in Locatie</th>
+                <th>Actions</th>
             </tr>
           </thead>";
     echo "<tbody>";
@@ -36,25 +38,24 @@ if ($result->num_rows > 0) {
     // Fetch each row of the result
     while ($row = $result->fetch_assoc()) {
         echo "<tr>";
-        echo "<td>" . $row['product_name'] . "</td>";
-        echo "<td>" . $row['product_type'] . "</td>";
-        echo "<td>" . $row['voorraad'] . "</td>";
-        echo "<td>" . $row['locatie'] . "</td>";
-        echo "<td>" . $row['aantal_in_locatie'] . "</td>";
-        echo "</tr>";
+        echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['product_type']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['voorraad']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['locatie']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['aantal_in_locatie']) . "</td>";
         echo "<td>
-        <a href='edit.php?id=" . $row['product_id'] . "' class='btn btn-warning btn-sm'>Edit</a>
-        <a href='delete.php?id=" . $row['product_id'] . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure?\")'>Delete</a>
-      </td>";
-echo "</tr>";
+                <a href='edit.php?id=" . $row['product_id'] . "' class='btn btn-warning btn-sm'>Edit</a>
+                <a href='delete.php?id=" . $row['product_id'] . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure?\")'>Delete</a>
+              </td>";
+        echo "</tr>";
     }
     
     echo "</tbody>";
     echo "</table>";
-} else{
-    echo "geen producten";
+} else {
+    echo "<div class='alert alert-warning'>Geen producten gevonden.</div>";
 }
 
-
-$conn->close(); // Close the database connection
+// Close the database connection
+$conn->close();
 ?>

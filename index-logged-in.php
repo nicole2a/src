@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <!-- Required meta tags and other content -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tools For Ever</title>
@@ -11,25 +10,25 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="index-logged-in.php">Tools_for_ever</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" href="index-logged-in.php">voorraad</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="bestellen.php">bestellen</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="bestellingen.php">bestellingen</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="loguit.php">log uit</a>
-            </li>
-          </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index-logged-in.php">Tools_for_ever</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index-logged-in.php">voorraad</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="bestellen.php">bestellen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="bestellingen.php">bestellingen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loguit.php">log uit</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>
     </nav>
 
     <div class="container mt-4">
@@ -40,16 +39,10 @@
             <h3>Add New Product</h3>
             <form action="index-logged-in.php" method="post">
                 <div class="mb-3">
-                    <label for="product" class="form-label">Product Name</label>
-                    <input type="text" class="form-control" id="product" name="product" required>
-                </div>
-                <div class="mb-3">
-                    <label for="type" class="form-label">Product Type</label>
-                    <input type="text" class="form-control" id="type" name="type" required>
-                </div>
-                <div class="mb-3">
-                    <label for="fabriek" class="form-label">Fabriek</label>
-                    <input type="text" class="form-control" id="fabriek" name="fabriek" required>
+                    <input type="text" class="form-control" id="product" name="product" placeholder="Product naam" required>
+                    <input type="text" class="form-control" id="type" name="type" placeholder="Product type" required> <!-- Fixed typo here -->
+                    <input type="text" class="form-control" id="fabriek" name="fabriek" placeholder="Fabriek" required>
+                    <input type="text" class="form-control" id="aantal_in_locatie" name="aantal_in_locatie" placeholder="aantal" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Product</button>
             </form>
@@ -114,37 +107,41 @@
         JOIN locaties l ON pl.locaties_id = l.id
         ";
 
-        // Execute the query
-        $result = $conn->query($sql);
+ 
+// Execute the query
+$result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
-            echo "<table class='table table-striped'>";
-            echo "<thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Product Type</th>
-                        <th>Voorraad</th>
-                        <th>Locatie</th>
-                        <th>Aantal in Locatie</th>
-                    </tr>
-                  </thead>";
-            echo "<tbody>";
+// Check for query errors
+if ($result === false) {
+    echo "Error in query: " . $conn->error;
+} elseif ($result->num_rows > 0) {
+    // Proceed if the query returns results
+    echo "<table class='table table-striped'>";
+    echo "<thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Voorraad</th>
+                <th>Locatie</th>
+                <th>Aantal in Locatie</th>
+            </tr>
+          </thead>";
+    echo "<tbody>";
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['product_type']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['voorraad']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['locatie']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['aantal_in_locatie']) . "</td>";
-                echo "</tr>";
-            }
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['product_type']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['voorraad']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['locatie']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['aantal_in_locatie']) . "</td>";
+        echo "</tr>";
+    }
 
-            echo "</tbody>";
-            echo "</table>";
-        } else {
-            echo "<div class='alert alert-warning'>No products found.</div>";
-        }
+    echo "</tbody>";
+    echo "</table>";
+} 
+
 
         $conn->close(); // Close the database connection
         ?>
