@@ -31,6 +31,20 @@
         </div>
     </nav>
 
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Separated link</a>
+            </div>
+        </div>
+        <input type="text" class="form-control" aria-label="Text input with dropdown button">
+    </div>
+
     <div class="container mt-4">
         <h2>Voorraad en Producten</h2>
 
@@ -40,9 +54,8 @@
             <form action="index-logged-in.php" method="post">
                 <div class="mb-3">
                     <input type="text" class="form-control" id="product" name="product" placeholder="Product naam" required>
-                    <input type="text" class="form-control" id="type" name="type" placeholder="Product type" required> <!-- Fixed typo here -->
+                    <input type="text" class="form-control" id="type" name="type" placeholder="Product type" required>
                     <input type="text" class="form-control" id="fabriek" name="fabriek" placeholder="Fabriek" required>
-                    <input type="text" class="form-control" id="aantal_in_locatie" name="aantal_in_locatie" placeholder="aantal" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Product</button>
             </form>
@@ -92,56 +105,33 @@
             }
         }
 
-        // SQL query to get product details, stock, and locations
-        $sql = "
-        SELECT
-            p.product AS product_name, 
-            p.type AS product_type,
-            v.voorraad AS voorraad,
-            l.locatie AS locatie,
-            pl.aantal AS aantal_in_locatie
-        FROM producten p
-        JOIN voorraad_has_producten vhp ON p.id = vhp.producten_id
-        JOIN voorraad v ON vhp.voorraad_id = v.id
-        JOIN producten_has_locaties pl ON p.id = pl.producten_id
-        JOIN locaties l ON pl.locaties_id = l.id
-        ";
+        // Fetch and display products
+        $sql_select = "SELECT * FROM producten"; // Adjust this to your table name
+        $result = $conn->query($sql_select);
 
- 
-// Execute the query
-$result = $conn->query($sql);
-
-// Check for query errors
-if ($result === false) {
-    echo "Error in query: " . $conn->error;
-} elseif ($result->num_rows > 0) {
-    // Proceed if the query returns results
-    echo "<table class='table table-striped'>";
-    echo "<thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Product Type</th>
-                <th>Voorraad</th>
-                <th>Locatie</th>
-                <th>Aantal in Locatie</th>
-            </tr>
-          </thead>";
-    echo "<tbody>";
-
-    while ($row = $result->fetch_assoc()) {
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['product_type']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['voorraad']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['locatie']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['aantal_in_locatie']) . "</td>";
-        echo "</tr>";
-    }
-
-    echo "</tbody>";
-    echo "</table>";
-} 
-
+        if ($result->num_rows > 0) {
+            echo '<table class="table table-bordered">
+                  <thead>
+                      <tr>
+                          <th>id</th>
+                          <th>Product</th>
+                          <th>Type</th>
+                          <th>Fabriek</th>
+                      </tr>
+                  </thead>
+                  <tbody>';
+            while ($row = $result->fetch_assoc()) {
+                echo '<tr>
+                          <td>' . $row["id"] . '</td>
+                          <td>' . $row["product"] . '</td>
+                          <td>' . $row["type"] . '</td>
+                          <td>' . $row["fabriek"] . '</td>
+                      </tr>';
+            }
+            echo '</tbody></table>';
+        } else {
+            echo "<div class='alert alert-info'>No products found.</div>";
+        }
 
         $conn->close(); // Close the database connection
         ?>
