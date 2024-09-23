@@ -1,5 +1,5 @@
 body {
-	background: #1690A7;
+	background: #545b62;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -67,7 +67,7 @@ h1 {
 
 a {
 	float: right;
-	background: #1690A7;
+	background: #545b62;
 	padding: 10px 15px;
 	color: #050303;
 	border-radius: 5px;

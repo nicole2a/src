@@ -1,75 +1,86 @@
+<!-- edit.php -->
 <?php
-include 'connectie.php';
+include 'connectie.php'; // Make sure this path is correct
 
+// Check if product ID is passed
 if (isset($_GET['id'])) {
-    $product_id = $_GET['id'];
+    $product_id = intval($_GET['id']);
 
-    // Get the product details along with voorraad, locatie, and aantal_in_locatie
-    $sql = "
-        SELECT 
-            p.product, 
-            p.type, 
-            v.voorraad, 
-            l.locatie, 
-            pl.aantal AS aantal_in_locatie 
-        FROM producten p 
-        JOIN voorraad_has_producten vhp ON p.id = vhp.producten_id 
-        JOIN voorraad v ON vhp.voorraad_id = v.id 
-        JOIN producten_has_locaties pl ON p.id = pl.producten_id 
-        JOIN locaties l ON pl.locaties_id = l.id
-        WHERE p.id = ?
-    ";
+    // Fetch the product details
+    $sql = "SELECT * FROM producten WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $product_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $product = $result->fetch_assoc();
 
-    if (!$product) {
-        die("Product not found.");
+    if ($result->num_rows === 1) {
+        $product = $result->fetch_assoc();
+    } else {
+        echo "<div class='alert alert-danger'>Product not found.</div>";
+        exit;
     }
-
-    // Handle form submission
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $product_name = $_POST['product_name'];
-        $product_type = $_POST['product_type'];
-        $voorraad = $_POST['voorraad'];
-        $locatie = $_POST['locatie'];
-        $aantal_in_locatie = $_POST['aantal_in_locatie'];
-
-        // Update the product in producten table
-        $update_product_sql = "UPDATE producten SET product = ?, type = ? WHERE id = ?";
-        $stmt = $conn->prepare($update_product_sql);
-        $stmt->bind_param("ssi", $product_name, $product_type, $product_id);
-        $stmt->execute();
-
-        // Update the voorraad
-        $update_voorraad_sql = "UPDATE voorraad v JOIN voorraad_has_producten vhp ON v.id = vhp.voorraad_id SET v.voorraad = ? WHERE vhp.producten_id = ?";
-        $stmt = $conn->prepare($update_voorraad_sql);
-        $stmt->bind_param("ii", $voorraad, $product_id);
-        $stmt->execute();
-
-        // Update locatie and aantal_in_locatie
-        $update_locatie_sql = "UPDATE locaties l JOIN producten_has_locaties pl ON l.id = pl.locaties_id SET l.locatie = ?, pl.aantal = ? WHERE pl.producten_id = ?";
-        $stmt = $conn->prepare($update_locatie_sql);
-        $stmt->bind_param("sii", $locatie, $aantal_in_locatie, $product_id);
-        $stmt->execute();
-
-        // Redirect after successful update
-        header("Location: index-logged-in.php");
-        exit();
-    }
+    $stmt->close();
 } else {
-    die("Invalid product ID.");
+    echo "<div class='alert alert-danger'>No product ID provided.</div>";
+    exit;
 }
+
+// Handle the form submission to update the product
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $product = htmlspecialchars(trim($_POST['product']));
+    $type = htmlspecialchars(trim($_POST['type']));
+    $fabriek = htmlspecialchars(trim($_POST['fabriek']));
+
+    if (!empty($product) && !empty($type) && !empty($fabriek)) {
+        $sql_update = "UPDATE producten SET product = ?, type = ?, fabriek = ? WHERE id = ?";
+        $stmt_update = $conn->prepare($sql_update);
+        $stmt_update->bind_param("sssi", $product, $type, $fabriek, $product_id);
+
+        if ($stmt_update->execute()) {
+            echo "<div class='alert alert-success'>Product updated successfully.</div>";
+            header('Location: index-logged-in.php'); // Redirect back to product list
+            exit;
+        } else {
+            echo "<div class='alert alert-danger'>Error updating product: " . $stmt_update->error . "</div>";
+        }
+        $stmt_update->close();
+    } else {
+        echo "<div class='alert alert-warning'>Please fill in all fields.</div>";
+    }
+}
+
+$conn->close(); // Close the database connection
 ?>
 
-<!-- Form to edit product details -->
-<form method="post" action="edit.php?id=<?php echo $product_id; ?>">
-    Product Name: <input type="text" name="product_name" value="<?php echo $product['product']; ?>" required><br>
-    Product Type: <input type="text" name="product_type" value="<?php echo $product['type']; ?>" required><br>
-    Voorraad: <input type="text" name="voorraad" value="<?php echo $product['voorraad']; ?>" required><br>
-    Locatie: <input type="text" name="locatie" value="<?php echo $product['locatie']; ?>" required><br>
-    Aantal in Locatie: <input type="text" name="aantal_in_locatie" value="<?php echo $product['aantal_in_locatie']; ?>" required><br>
-    <input type="submit" value="Update Product">
-</form>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Edit Product</h2>
+    <form action="edit.php?id=<?= $product_id ?>" method="post">
+        <div class="mb-3">
+            <label for="product" class="form-label">Product Name</label>
+            <input type="text" class="form-control" id="product" name="product" value="<?= $product['product'] ?>" required>
+        </div>
+        <div class="mb-3">
+            <label for="type" class="form-label">Product Type</label>
+            <input type="text" class="form-control" id="type" name="type" value="<?= $product['type'] ?>" required>
+        </div>
+        <div class="mb-3">
+            <label for="fabriek" class="form-label">Fabriek</label>
+            <input type="text" class="form-control" id="fabriek" name="fabriek" value="<?= $product['fabriek'] ?>" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Product</button>
+        <a href="index-logged-in.php" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
