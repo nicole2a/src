@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         // Check if email already exists
-        $sql = "SELECT * FROM Special_admin WHERE email = ?";
+        $sql = "SELECT * FROM MyGuests WHERE email = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
             die("Database prepare failed: " . $conn->error); // Display the error if prepare fails
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             // Insert the user into the database
-            $sql_insert = "INSERT INTO Special_admin (name, email, password_hash) VALUES (?, ?, ?)";
+            $sql_insert = "INSERT INTO MyGuests (name, email, password_hash) VALUES (?, ?, ?)";
             $stmt_insert = $conn->prepare($sql_insert);
             if ($stmt_insert === false) {
                 die("Database prepare failed: " . $conn->error); // Display the error if prepare fails

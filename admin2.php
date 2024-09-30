@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             // Check if the user exists in the database
-            $sql = "SELECT * FROM admin WHERE email = ?";
+            $sql = "SELECT * FROM Special_admin WHERE email = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 } else {
                     header("Location: admin.php?error=Invalid password");
-                    exit();
+                    exit(); 
                 }
             } else {
                 header("Location: admin.php?error=User not found");

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['id'] = $user['id'];
 
                     // Redirect to the logged-in page
-                    header("Location: index-logged-in.php");
+                    header("Location: bestellen.php");
                     exit();
                 } else {
                     header("Location: login.php?error=Invalid password");

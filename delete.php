@@ -30,7 +30,7 @@ if (isset($_GET['id'])) {
         $conn->commit();
 
         // Redirect back to the main page after deletion
-        header("Location: index-logged-in.php");
+        header("Location: bestellen.php");
         exit();
     } catch (Exception $e) {
         // Rollback the transaction if there's any error
@@ -41,3 +41,4 @@ if (isset($_GET['id'])) {
     die("Invalid product ID.");
 }
 ?>
+                                                                                                                                                                                                                                                                                                                                                                        
