@@ -1,6 +1,6 @@
 <!-- edit.php -->
 <?php
-include 'connectie.php'; // Make sure this path is correct
+include '../connectie.php'; // Make sure this path is correct
 
 // Check if product ID is passed
 if (isset($_GET['id'])) {
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt_update->execute()) {
             echo "<div class='alert alert-success'>Product updated successfully.</div>";
-            header('Location: bestellen.php'); // Redirect back to product list
+            header('Location: index-logged-in-admin.php'); // Redirect back to product list
             exit;
         } else {
             echo "<div class='alert alert-danger'>Error updating product: " . $stmt_update->error . "</div>";
@@ -77,7 +77,7 @@ $conn->close(); // Close the database connection
             <input type="text" class="form-control" id="fabriek" name="fabriek" value="<?= $product['fabriek'] ?>" required>
         </div>
         <button type="submit" class="btn btn-primary">Update Product</button>
-        <a href="bestellen.php" class="btn btn-secondary">Cancel</a>
+        <a href="index-logged-in-admin.php" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 

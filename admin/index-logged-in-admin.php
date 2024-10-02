@@ -11,20 +11,14 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index-logged-in.php">Tools_for_ever</a>
+            <a class="navbar-brand" href="index-logged-in-admin.php">Tools_for_ever</a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index-logged-in.php">voorraad</a>
+                        <a class="nav-link active" href="index-logged-in-admin.php">Voorraad</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="bestellen.php">bestellen</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="bestellingen.php">bestellingen</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="loguit.php">log uit</a>
+                        <a class="nav-link" href="../loguit.php">Log uit</a>
                     </li>
                 </ul>
             </div>
@@ -35,13 +29,13 @@
         <h2>Voorraad en Producten</h2>
 
         <!-- Location Selection -->
-        <form action="index-logged-in.php" method="get">
+        <form action="index-logged-in-admin.php" method="get">
             <div class="mb-3">
                 <label for="locatie" class="form-label">Select Location:</label>
                 <select name="locatie_id" class="form-select" onchange="this.form.submit()">
                     <option value="">All Locations</option>
                     <?php
-                    include 'connectie.php';
+                    include '../connectie.php';
                     $sql_locaties = "SELECT * FROM locaties";
                     $result_locaties = $conn->query($sql_locaties);
                     if ($result_locaties->num_rows > 0) {
@@ -56,7 +50,7 @@
         </form>
 
         <!-- Form for Adding New Product -->
-        <form action="index-logged-in.php" method="post">
+        <form action="index-logged-in-admin.php" method="post">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -65,6 +59,7 @@
                         <th>Type</th>
                         <th>Fabriek</th>
                         <th>Aantal</th>
+                        <th>Prijs</th> <!-- New prijs Column -->
                         <th>Locatie</th>
                         <th>Actions</th>
                     </tr>
@@ -77,6 +72,7 @@
                         <td><input type="text" class="form-control" name="type" placeholder="Product type" ></td>
                         <td><input type="text" class="form-control" name="fabriek" placeholder="Fabriek" required></td>
                         <td><input type="number" class="form-control" name="aantal" placeholder="Aantal" required min="0"></td>
+                        <td><input type="number" class="form-control" name="prijs" placeholder="Prijs" required step="0.01"></td> <!-- New prijs Input -->
                         <td>
                             <select name="locatie_id" class="form-control" required>
                                 <option value="">Select Location</option>
@@ -100,15 +96,37 @@
                         $type = htmlspecialchars(stripslashes(trim($_POST['type'])));
                         $fabriek = htmlspecialchars(stripslashes(trim($_POST['fabriek'])));
                         $aantal = (int)$_POST['aantal'];
+                        $prijs = (float)$_POST['prijs']; // Handle prijs
                         $locatie_id = $_POST['locatie_id'];
 
-                        if (!empty($product) && !empty($type) && !empty($fabriek) && $aantal >= 0 && !empty($locatie_id)) {
-                            $sql = "INSERT INTO producten (product, type, fabriek, aantal, locatie_id) VALUES (?, ?, ?, ?, ?)";
+                        if (!empty($product) && !empty($type) && !empty($fabriek) && $aantal >= 0 && !empty($locatie_id) && $prijs >= 0) {
+                            $sql = "INSERT INTO producten (product, type, fabriek, aantal, prijs, locatie_id) VALUES (?, ?, ?, ?, ?, ?)"; // Include prijs
                             $stmt = $conn->prepare($sql);
                             if ($stmt) {
-                                $stmt->bind_param("ssssi", $product, $type, $fabriek, $aantal, $locatie_id);
+                                $stmt->bind_param("sssisi", $product, $type, $fabriek, $aantal, $prijs, $locatie_id); // Bind prijs
                                 $stmt->execute();
                                 $stmt->close();
+                            }
+                        }
+                    }
+
+                    // Handle form submission for updating a product
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
+                        $product_id = (int)$_POST['id'];
+                        $product = htmlspecialchars(stripslashes(trim($_POST['product'])));
+                        $type = htmlspecialchars(stripslashes(trim($_POST['type'])));
+                        $fabriek = htmlspecialchars(stripslashes(trim($_POST['fabriek'])));
+                        $aantal = (int)$_POST['aantal'];
+                        $prijs = (float)$_POST['prijs']; // Handle prijs
+                        $locatie_id = (int)$_POST['locatie_id'];
+
+                        if ($product_id > 0 && !empty($product) && !empty($fabriek) && $aantal >= 0 && !empty($locatie_id) && $prijs >= 0) {
+                            $sql_update = "UPDATE producten SET product = ?, type = ?, fabriek = ?, aantal = ?, prijs = ?, locatie_id = ? WHERE id = ?"; // Update prijs
+                            $stmt_update = $conn->prepare($sql_update);
+                            if ($stmt_update) {
+                                $stmt_update->bind_param("sssisii", $product, $type, $fabriek, $aantal, $prijs, $locatie_id, $product_id); // Bind prijs
+                                $stmt_update->execute();
+                                $stmt_update->close();
                             }
                         }
                     }
@@ -126,16 +144,17 @@
                                       <td>' . $row["type"] . '</td>
                                       <td>' . $row["fabriek"] . '</td>
                                       <td>' . $row["aantal"] . '</td>
+                                      <td>' . number_format($row["prijs"], 2) . '</td> <!-- Display prijs -->
                                       <td>' . $row["locatie"] . '</td>
                                       <td>
                                           <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" 
-                                              onclick="loadProductData(' . $row["id"] . ', \'' . $row["product"] . '\', \'' . $row["type"] . '\', \'' . $row["fabriek"] . '\', ' . $row["aantal"] . ', ' . $row["locatie_id"] . ')">Edit</button>
-                                          <a href="delete.php?id=' . $row["id"] . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this product?\')">Delete</a>
+                                              onclick="loadProductData(' . $row["id"] . ', \'' . addslashes($row["product"]) . '\', \'' . addslashes($row["type"]) . '\', \'' . addslashes($row["fabriek"]) . '\', ' . $row["aantal"] . ', ' . $row["prijs"] . ', ' . $row["locatie_id"] . ')">Edit</button>
+                                          <a href="delete-voorraad.php?id=' . $row["id"] . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this product?\')">Delete</a>
                                       </td>
                                   </tr>';
                         }
                     } else {
-                        echo "<tr><td colspan='7' class='text-center'>No products found.</td></tr>";
+                        echo "<tr><td colspan='8' class='text-center'>No products found.</td></tr>";
                     }
 
                     $conn->close();
@@ -153,7 +172,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="index-logged-in.php" method="post" id="editForm">
+                        <form action="index-logged-in-admin.php" method="post" id="editForm">
                             <input type="hidden" name="id" id="editProductId">
                             <div class="mb-3">
                                 <label for="editProduct" class="form-label">Product Name</label>
@@ -169,7 +188,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="editAantal" class="form-label">Aantal</label>
-                                <input type="number" class="form-control" id="editAantal" name="aantal" required min="0>
+                                <input type="number" class="form-control" id="editAantal" name="aantal" required min="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editprijs" class="form-label">Prijs</label> <!-- prijs Input for Edit Modal -->
+                                <input type="number" class="form-control" id="editprijs" name="prijs" required step="0.01">
                             </div>
                             <div class="mb-3">
                                 <label for="editLocatie" class="form-label">Locatie</label>
@@ -190,21 +213,22 @@
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Load product data into the modal -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"></script>
     <script>
-        function loadProductData(id, product, type, fabriek, aantal, locatie_id) {
+        function loadProductData(id, product, type, fabriek, aantal, prijs, locatie_id) {
             document.getElementById('editProductId').value = id;
             document.getElementById('editProduct').value = product;
             document.getElementById('editType').value = type;
             document.getElementById('editFabriek').value = fabriek;
             document.getElementById('editAantal').value = aantal;
+            document.getElementById('editprijs').value = prijs; // Set prijs for edit
             document.getElementById('editLocatie').value = locatie_id;
         }
     </script>
-
-    <!-- Bootstrap JS and other dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

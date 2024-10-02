@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>LOGIN</title>
-    <link rel="stylesheet" type="text/css" href="login.css">
+    <link rel="stylesheet" type="text/css" href="../login.css">
 </head>
 <body>
     <form action="admin2.php" method="post">
@@ -18,7 +18,7 @@
 
         <button type="submit">Login</button>
     </form>
-    <a href="sign-up.php">Don't have an account? Click here to register.</a>
+    <a href="../sign-up.php">Don't have an account? Click here to register.</a>
 </body>
 </html>
 

@@ -19,6 +19,6 @@
         <button type="submit">Login</button>
     </form>
     <a href="sign-up.php">Don't have an account? Click here to register.</a>
-    <a href="admin.php">are you an admin? Click here to login.</a>
+    <a href="admin/admin.php">are you an admin? Click here to login.</a>
 </body>
 </html>

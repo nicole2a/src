@@ -1,7 +1,5 @@
 <?php
 include 'navbar.php';  // Zorg ervoor dat de sessie hier is gestart in navbar.php
-
-// De rest van je code blijft hetzelfde.
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,7 +33,7 @@ include 'navbar.php';  // Zorg ervoor dat de sessie hier is gestart in navbar.ph
 <body>
 
     <!-- Container voor de producten -->
-    <div class="container mt-4">
+    <div class="container mt-4">  
         <h2>Onze Producten</h2>
 
         <!-- Locatie selectie -->
@@ -88,11 +86,11 @@ include 'navbar.php';  // Zorg ervoor dat de sessie hier is gestart in navbar.ph
                                 <p class="card-text">Type: ' . $row["type"] . '</p>
                                 <p class="card-text">Fabriek: ' . $row["fabriek"] . '</p>
                                 <p class="card-text">Locatie: ' . $row["locatie"] . '</p>
-                                <p class="price">€' . number_format(rand(10, 100), 2) . '</p> <!-- Dummyprijs -->
+                                <p class="price">€' . number_format($row["prijs"], 2) . '</p> <!-- Prijs vanuit database -->
                                 <form action="winkelmand.php" method="post">
                                     <input type="hidden" name="product_id" value="' . $row["id"] . '">
                                     <input type="hidden" name="product_naam" value="' . $row["product"] . '">
-                                    <input type="hidden" name="product_prijs" value="' . rand(10, 100) . '">
+                                    <input type="hidden" name="product_prijs" value="' . $row["prijs"] . '">
                                     <button type="submit" class="btn btn-success">Toevoegen aan winkelmandje</button>
                                 </form>
                             </div>
