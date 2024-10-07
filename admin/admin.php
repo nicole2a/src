@@ -8,8 +8,8 @@
     <form action="admin2.php" method="post">
         <h2>LOGIN</h2>
         <?php if (isset($_GET['error'])) { ?>
-            <p class="error"><?php echo $_GET['error']; ?></p>
-        <?php } ?>
+            <p class="error"><?php echo $_GET['error']; </p>
+        } ?>
         <label>E-mail</label>
         <input type="text" name="email" placeholder="gebruiker@gmail.com" required><br>
 

@@ -32,7 +32,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'aantal' => 1
             ];
         }
+        
+        // Return success for AJAX
+        echo json_encode(['success' => true, 'message' => 'Product toegevoegd aan winkelmandje']);
+        exit;
     }
+}
+
+// Werk het aantal van een product bij via AJAX
+if (isset($_POST['update_aantal']) && isset($_POST['product_id']) && isset($_POST['nieuw_aantal'])) {
+    $product_id = $_POST['product_id'];
+    $nieuw_aantal = (int)$_POST['nieuw_aantal'];
+
+    if ($nieuw_aantal > 0) {
+        // Zoek het product in de sessie en werk het aantal bij
+        foreach ($_SESSION['winkelmand'] as &$item) {
+            if ($item['id'] == $product_id) {
+                $item['aantal'] = $nieuw_aantal;
+                break;
+            }
+        }
+        echo json_encode(['success' => true, 'message' => 'Aantal bijgewerkt']);
+    } else {
+        // Verwijder het product als het aantal op 0 wordt gezet
+        foreach ($_SESSION['winkelmand'] as $key => $item) {
+            if ($item['id'] == $product_id) {
+                unset($_SESSION['winkelmand'][$key]);
+                break;
+            }
+        }
+        echo json_encode(['success' => true, 'message' => 'Product verwijderd']);
+    }
+    exit;
 }
 
 // Winkelmandje weergeven
@@ -73,7 +104,10 @@ include 'navbar.php';
                     ?>
                     <tr>
                         <td><?php echo $item['naam']; ?></td>
-                        <td><?php echo $item['aantal']; ?></td>
+                        <td>
+                            <!-- Input field to change quantity -->
+                            <input type="number" class="form-control update-aantal" data-product-id="<?php echo $item['id']; ?>" value="<?php echo $item['aantal']; ?>" min="1">
+                        </td>
                         <td>€<?php echo number_format($item['prijs'], 2); ?></td>
                         <td>€<?php echo number_format($product_totaal, 2); ?></td>
                         <td>
@@ -96,5 +130,39 @@ include 'navbar.php';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Handle quantity change
+        $(document).ready(function() {
+            $('.update-aantal').on('change', function() {
+                var product_id = $(this).data('product-id');
+                var nieuw_aantal = $(this).val();
+
+                $.ajax({
+                    url: 'winkelmand.php',
+                    type: 'POST',
+                    data: {
+                        update_aantal: true,
+                        product_id: product_id,
+                        nieuw_aantal: nieuw_aantal
+                    },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            alert(result.message);
+                            // Optionally reload the page to reflect updated total
+                            location.reload();
+                        } else {
+                            alert('Er is een fout opgetreden: ' + result.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Er is een fout opgetreden.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

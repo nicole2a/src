@@ -73,7 +73,7 @@ $conn->close(); // Close the database connection
             <input type="text" class="form-control" id="type" name="type" value="<?= $product['type'] ?>" required>
         </div>
         <div class="mb-3">
-            <label for="fabriek" class="form-label">Fabriek</label>
+            <label for="fabriek" class="form-label">fabriek</label>
             <input type="text" class="form-control" id="fabriek" name="fabriek" value="<?= $product['fabriek'] ?>" required>
         </div>
         <button type="submit" class="btn btn-primary">Update Product</button>

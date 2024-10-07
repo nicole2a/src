@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($stmt->execute()) {
             // Redirect to the page displaying products
-            header("Location: index-logged-in.php");
+            header("Location: bestellen.php");
             exit();
         } else {
             die("Database error: " . $stmt->error); // Display the error if execute fails
