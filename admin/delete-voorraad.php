@@ -16,6 +16,6 @@ if (isset($_GET['id'])) {
 }
 
 // Redirect back to the main page after deletion
-header("Location: index-logged-in-admin.php");
+header("Location: index.php");
 exit();
 ?>

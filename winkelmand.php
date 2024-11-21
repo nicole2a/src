@@ -1,90 +1,85 @@
 <?php
 session_start();
+include 'connectie.php'; // Ensure this file correctly connects to your database
 
-// Voeg producten toe aan winkelmandje als het formulier wordt ingediend
+// Add product to cart when the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['product_id'])) {
-        $product_id = $_POST['product_id'];
-        $product_naam = $_POST['product_naam'];
-        $product_prijs = $_POST['product_prijs'];
-
-        // Controleer of het winkelmandje al bestaat, zo niet, maak het aan
-        if (!isset($_SESSION['winkelmand'])) {
-            $_SESSION['winkelmand'] = [];
-        }
-
-        // Controleer of het product al in de winkelmand zit
-        $product_bestaat = false;
-        foreach ($_SESSION['winkelmand'] as &$item) {
-            if ($item['id'] == $product_id) {
-                $item['aantal'] += 1;  // Verhoog aantal als het al bestaat
-                $product_bestaat = true;
-                break;
-            }
-        }
-
-        // Als het product nog niet in het winkelmandje zit, voeg het toe
-        if (!$product_bestaat) {
-            $_SESSION['winkelmand'][] = [
-                'id' => $product_id,
-                'naam' => $product_naam,
-                'prijs' => $product_prijs,
-                'aantal' => 1
-            ];
-        }
+        $product_id = (int)$_POST['product_id'];
         
-        // Return success for AJAX
-        echo json_encode(['success' => true, 'message' => 'Product toegevoegd aan winkelmandje']);
+        // Fetch product details from database
+        $stmt = $conn->prepare("SELECT id, product AS naam, prijs FROM producten WHERE id = ?");
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $product = $result->fetch_assoc();
+            
+            // Initialize cart session if not set
+            if (!isset($_SESSION['winkelmand'])) {
+                $_SESSION['winkelmand'] = [];
+            }
+
+            // Check if product is already in cart and update quantity, or add as new
+            $product_found = false;
+            foreach ($_SESSION['winkelmand'] as &$item) {
+                if ($item['id'] == $product['id']) {
+                    $item['aantal']++;
+                    $product_found = true;
+                    break;
+                }
+            }
+
+            if (!$product_found) {
+                $_SESSION['winkelmand'][] = [
+                    'id' => $product['id'],
+                    'naam' => $product['naam'],
+                    'prijs' => $product['prijs'],
+                    'aantal' => 1
+                ];
+            }
+
+            echo json_encode(['success' => true, 'message' => 'Product toegevoegd aan winkelmandje']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Product niet gevonden']);
+        }
         exit;
     }
 }
 
-// Werk het aantal van een product bij via AJAX
-if (isset($_POST['update_aantal']) && isset($_POST['product_id']) && isset($_POST['nieuw_aantal'])) {
-    $product_id = $_POST['product_id'];
-    $nieuw_aantal = (int)$_POST['nieuw_aantal'];
+// Update quantity in cart via AJAX
+if (isset($_POST['update_aantal'], $_POST['product_id'], $_POST['nieuw_aantal'])) {
+    $product_id = (int)$_POST['product_id'];
+    $nieuw_aantal = max(1, (int)$_POST['nieuw_aantal']); // Set minimum quantity to 1
 
-    if ($nieuw_aantal > 0) {
-        // Zoek het product in de sessie en werk het aantal bij
-        foreach ($_SESSION['winkelmand'] as &$item) {
-            if ($item['id'] == $product_id) {
-                $item['aantal'] = $nieuw_aantal;
-                break;
-            }
+    foreach ($_SESSION['winkelmand'] as &$item) {
+        if ($item['id'] == $product_id) {
+            $item['aantal'] = $nieuw_aantal;
+            echo json_encode(['success' => true, 'message' => 'Aantal bijgewerkt']);
+            exit;
         }
-        echo json_encode(['success' => true, 'message' => 'Aantal bijgewerkt']);
-    } else {
-        // Verwijder het product als het aantal op 0 wordt gezet
-        foreach ($_SESSION['winkelmand'] as $key => $item) {
-            if ($item['id'] == $product_id) {
-                unset($_SESSION['winkelmand'][$key]);
-                break;
-            }
-        }
-        echo json_encode(['success' => true, 'message' => 'Product verwijderd']);
     }
+    echo json_encode(['success' => false, 'message' => 'Product niet in winkelmandje']);
     exit;
 }
 
-// Winkelmandje weergeven
 include 'navbar.php';
 ?>
 
 <!doctype html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Winkelmandje</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome voor winkelmand icoon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container mt-4">
         <h2>Winkelmandje</h2>
 
-        <?php if (isset($_SESSION['winkelmand']) && count($_SESSION['winkelmand']) > 0): ?>
+        <?php if (!empty($_SESSION['winkelmand'])): ?>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -98,23 +93,19 @@ include 'navbar.php';
                 <tbody>
                     <?php
                     $totaal = 0;
-                    foreach ($_SESSION['winkelmand'] as $item): 
+                    foreach ($_SESSION['winkelmand'] as $item):
                         $product_totaal = $item['prijs'] * $item['aantal'];
                         $totaal += $product_totaal;
                     ?>
                     <tr>
-                        <td><?php echo $item['naam']; ?></td>
+                        <td><?php echo htmlspecialchars($item['naam']); ?></td>
                         <td>
-                            <!-- Input field to change quantity -->
                             <input type="number" class="form-control update-aantal" data-product-id="<?php echo $item['id']; ?>" value="<?php echo $item['aantal']; ?>" min="1">
                         </td>
                         <td>€<?php echo number_format($item['prijs'], 2); ?></td>
                         <td>€<?php echo number_format($product_totaal, 2); ?></td>
                         <td>
-                            <form action="verwijder.php" method="post">
-                                <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
-                                <button type="submit" class="btn btn-danger">Verwijder</button>
-                            </form>
+                            <button data-product-id="<?php echo $item['id']; ?>" class="btn btn-danger verwijder-knop">Verwijder</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -133,7 +124,6 @@ include 'navbar.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // Handle quantity change
         $(document).ready(function() {
             $('.update-aantal').on('change', function() {
                 var product_id = $(this).data('product-id');
@@ -151,7 +141,32 @@ include 'navbar.php';
                         var result = JSON.parse(response);
                         if (result.success) {
                             alert(result.message);
-                            // Optionally reload the page to reflect updated total
+                            location.reload();
+                        } else {
+                            alert('Er is een fout opgetreden: ' + result.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Er is een fout opgetreden.');
+                    }
+                });
+            });
+
+            // Remove item
+            $('.verwijder-knop').on('click', function() {
+                var product_id = $(this).data('product-id');
+                $.ajax({
+                    url: 'winkelmand.php',
+                    type: 'POST',
+                    data: {
+                        update_aantal: true,
+                        product_id: product_id,
+                        nieuw_aantal: 0 // Setting to 0 will remove the item
+                    },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            alert(result.message);
                             location.reload();
                         } else {
                             alert('Er is een fout opgetreden: ' + result.message);
@@ -166,3 +181,5 @@ include 'navbar.php';
     </script>
 </body>
 </html>
+
+
